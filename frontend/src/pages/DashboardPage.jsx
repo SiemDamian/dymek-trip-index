@@ -1370,7 +1370,9 @@ function BadgeDialog({ selectedBadge, onClose }) {
 					{selectedBadge?.badge_image_url ? (
 						<Box
 							component="img"
-							src={selectedBadge.badge_image_url}
+							src={getBadgeImageUrl(
+								selectedBadge.badge_image_url,
+							)}
 							alt={selectedBadge.badge_name}
 							sx={{
 								maxWidth: 190,
@@ -1908,7 +1910,15 @@ function getCountdownText(trip) {
 		description: `${trip.title} do ${trip.location}, start był: ${trip.start_date}`,
 	};
 }
+function getBadgeImageUrl(imageUrl) {
+	if (!imageUrl) {
+		return null;
+	}
 
+	const fileName = imageUrl.split("/").pop();
+
+	return `https://dymek-trip-index.onrender.com/static/badges/${fileName}`;
+}
 function getLastTripText(trip) {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
