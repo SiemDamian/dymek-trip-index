@@ -397,7 +397,7 @@ export default function DashboardPage() {
 								<Table
 									size="small"
 									sx={{
-										minWidth: 760,
+										minWidth: 1050,
 										"& .MuiTableCell-root": {
 											borderColor:
 												"rgba(255,255,255,.08)",
@@ -494,15 +494,19 @@ export default function DashboardPage() {
 														sx={{
 															color: "#fff",
 															fontWeight: 800,
-															maxWidth: 180,
+															minWidth:
+																"max-content",
+															maxWidth: "none",
 															background:
 																"linear-gradient(135deg, rgba(168,85,247,.85), rgba(59,130,246,.85))",
 															"& .MuiChip-label":
 																{
 																	overflow:
-																		"hidden",
+																		"visible",
 																	textOverflow:
-																		"ellipsis",
+																		"clip",
+																	whiteSpace:
+																		"nowrap",
 																},
 														}}
 													/>
@@ -1913,14 +1917,39 @@ function getLastTripText(trip) {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
-	const end = new Date(trip.end_date);
+	const end = parseLocalDate(trip.end_date);
+
+	if (!end) {
+		return {
+			title: "Ostatni wyjazd",
+			description: `Był to wyjazd do ${trip.location}: ${trip.title}`,
+		};
+	}
+
 	end.setHours(0, 0, 0, 0);
 
-	const diffMs = today - end;
+	const diffMs = today.getTime() - end.getTime();
 	const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 
+	let title = "";
+
+	if (days === 0) {
+		title = "Ostatni wyjazd zakończył się dzisiaj";
+	} else if (days === 1) {
+		title = "Ostatni wyjazd był wczoraj";
+	} else {
+		title = `Ostatni wyjazd był ${days} dni temu`;
+	}
+
 	return {
-		title: `Ostatni wyjazd był ${days} dni temu`,
+		title,
 		description: `Był to wyjazd do ${trip.location}: ${trip.title}`,
 	};
+}
+function parseLocalDate(dateString) {
+	if (!dateString) return null;
+
+	const [year, month, day] = dateString.split("-").map(Number);
+
+	return new Date(year, month - 1, day);
 }
